@@ -28,3 +28,4 @@ done
 echo ${pdflist[@]}
 #pdftk ${pdflist[@]} cat output $outpdf
 gs -q -dNOPAUSE -dBATCH -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -sOutputFile=$outpdf ${pdflist[@]} # from: http://tex.stackexchange.com/a/8665/19419
+rm ${pdflist[@]}
