@@ -11,7 +11,7 @@
 # $1: toc file
 # $2: output pdf file name
 
-# Dependencies: inkscape, pdftk
+# Dependencies: inkscape, pdftk or gs
 
 toc=$1
 outpdf=$2
@@ -26,4 +26,5 @@ for x in $(cat $toc); do
 done
 
 echo ${pdflist[@]}
-pdftk ${pdflist[@]} cat output $outpdf
+#pdftk ${pdflist[@]} cat output $outpdf
+gs -q -dNOPAUSE -dBATCH -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -sOutputFile=$outpdf ${pdflist[@]} # from: http://tex.stackexchange.com/a/8665/19419
