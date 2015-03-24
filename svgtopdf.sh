@@ -25,13 +25,25 @@ for x in $(cat $toc); do
     i=$(($i+1))
     echo $i $x
     sed "s/#P/$i/" $x | sed "s/#T/$t/" > $tmpdir/$i.svg
-    inkscape --export-pdf=$tmpdir/$i.pdf $tmpdir/$i.svg
+    nlayers=$(inkscape --query-all $tmpdir/$i.svg | grep -c "^layer")
+    if [ $nlayers -eq 1 ]; then
+        inkscape --export-pdf=$tmpdir/$i.pdf $tmpdir/$i.svg
+        pdflist+=(" $tmpdir/$i.pdf")
+    else
+        for lid in $(seq $nlayers); do    # lid: layer id
+	    echo "layer $lid"
+            inkscape $tmpdir/$i.svg -i "layer$lid" -j -C --export-pdf=$tmpdir/$i.$lid.pdf
+            pdflist+=(" $tmpdir/$i.$lid.pdf")
+            #nlid=$(($lid+1)) # next layer id
+            #sed -i "s/layer$lid/layer$nlid/" $tmpdir/$i.svg
+            #sed -i "s/inkscape:label=\"Layer $lid\"/inkscape:label=\"Layer $nlid\"/" $tmpdir/$i.svg
+        done
+    fi
     svglist+=(" $tmpdir/$i.svg") # append to an array (see: http://stackoverflow.com/a/18041780/1679629)
-    pdflist+=(" $tmpdir/$i.pdf")
 done
 
 echo ${pdflist[@]}
 #pdftk ${pdflist[@]} cat output $outpdf
 gs -q -dNOPAUSE -dBATCH -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -sOutputFile=$outpdf ${pdflist[@]} # from: http://tex.stackexchange.com/a/8665/19419
-rm ${pdflist[@]}
-rm ${svglist[@]}
+#rm ${pdflist[@]}
+#rm ${svglist[@]}
